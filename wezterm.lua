@@ -48,6 +48,11 @@ config.color_scheme = 'nord'
 
 -- Window appearance
 config.window_decorations = 'RESIZE' -- TITLE | RESIZE | NONE
+
+-- Window sizing
+config.initial_rows = nil -- Let OS handle window size
+config.initial_cols = nil -- Let OS handle window size
+
 config.window_padding = {
 	left = 10,
 	right = 10,
@@ -268,6 +273,15 @@ if ok and local_config then
 end
 
 -- =============================================================================
--- FINAL CONFIGURATION RETURN
+-- WINDOW STARTUP BEHAVIOR
 -- =============================================================================
+-- Maximize window on startup
+wezterm.on('gui-attached', function(domain)
+	local mux = wezterm.mux
+	local workspace = mux.get_active_workspace()
+	for _, window in ipairs(mux.all_windows()) do
+		window:gui_window():maximize()
+	end
+end)
+
 return config
