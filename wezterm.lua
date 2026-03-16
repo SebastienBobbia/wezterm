@@ -197,12 +197,27 @@ config.hyperlink_rules = wezterm.default_hyperlink_rules()
 -- =============================================================================
 -- Use WezTerm's default WSL domain detection
 -- This automatically creates domains for all WSL distributions found on the system
-local wsl_domains = wezterm.default_wsl_domains()
-config.wsl_domains = wsl_domains
+-- local wsl_domains = wezterm.default_wsl_domains()
+-- config.wsl_domains = wsl_domains
 
 -- Set default domain to Ubuntu WSL
 -- The domain name follows the format 'WSL:DistroName'
-config.default_domain = 'WSL:Ubuntu'
+-- config.default_domain = 'WSL:Ubuntu'
+
+--- Set Pwsh as the default on Windows
+config.default_prog = { 'pwsh.exe', '-NoLogo' }
+
+-- Launch menu for quick selection
+config.launch_menu = {
+	{
+		label = 'PowerShell (Default)',
+		args = { 'powershell.exe', '-NoLogo' },
+	},
+	{
+		label = 'Pwsh (Modern PowerShell)',
+		args = { 'pwsh.exe', '-NoLogo' },
+	},
+}
 
 -- =============================================================================
 -- RENDERING & FRONTEND
@@ -235,6 +250,22 @@ config.win32_system_backdrop = 'Mica'
 -- This allows the Mica backdrop to be fully visible
 -- Range: 0.0 (fully transparent) to 1.0 (fully opaque)
 config.window_background_opacity = 0
+
+-- =============================================================================
+-- LOCAL CONFIGURATION OVERRIDE
+-- =============================================================================
+-- Load local configuration if it exists (wezterm.local.lua)
+-- This allows machine-specific overrides without versioning
+local ok, local_config = pcall(function()
+	return require 'wezterm.local'
+end)
+
+if ok and local_config then
+	-- Merge local config into main config
+	for key, value in pairs(local_config) do
+		config[key] = value
+	end
+end
 
 -- =============================================================================
 -- FINAL CONFIGURATION RETURN
