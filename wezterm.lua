@@ -6,6 +6,54 @@ local wezterm = require 'wezterm'
 local config = wezterm.config_builder()
 
 -- =============================================================================
+-- PLUGINS (LAZY LOADED)
+-- =============================================================================
+-- Plugins are loaded lazily (on-demand) to avoid startup delays
+-- They will be loaded when first used, not at startup
+local resurrect = nil
+local ai_helper = nil
+local plugins_loading = false
+
+local function load_plugins_async()
+	if plugins_loading or (resurrect and ai_helper) then
+		return
+	end
+	plugins_loading = true
+	
+	wezterm.log_info('Loading plugins in background...')
+	
+	-- Try to load each plugin independently
+	if not resurrect then
+		local success, plugin = pcall(function()
+			return wezterm.plugin.require('https://github.com/MLFlexer/resurrect.wezterm')
+		end)
+		if success then
+			resurrect = plugin
+			wezterm.log_info('resurrect.wezterm loaded successfully')
+		else
+			wezterm.log_warn('Failed to load resurrect.wezterm: ' .. tostring(plugin))
+		end
+	end
+	
+	if not ai_helper then
+		local success, plugin = pcall(function()
+			return wezterm.plugin.require('https://github.com/Michal1993r/ai-helper.wezterm')
+		end)
+		if success then
+			ai_helper = plugin
+			wezterm.log_info('ai-helper.wezterm loaded successfully')
+		else
+			wezterm.log_warn('Failed to load ai-helper.wezterm: ' .. tostring(plugin))
+		end
+	end
+end
+
+-- Load plugins after startup (gives time for GUI to render first)
+wezterm.on('gui-startup', function(cmd)
+	load_plugins_async()
+end)
+
+-- =============================================================================
 -- FONTS CONFIGURATION
 -- =============================================================================
 -- Configure primary font with fallback support for symbols and emojis
@@ -159,6 +207,75 @@ config.keys = {
 
 	-- ---- QUICK SELECT (Select text in pane) ----
 	{ key = 's',          mods = 'CTRL|SHIFT', action = wezterm.action.QuickSelect },
+
+	-- ---- RESURRECT : SAVE SESSIONS ----
+	{
+		key = 's',
+		mods = 'ALT',
+		action = wezterm.action_callback(function(win, pane)
+			if resurrect then
+				resurrect.state_manager.save_state(resurrect.workspace_state.get_workspace_state())
+				resurrect.window_state.save_window_action()
+			end
+		end),
+	},
+	{
+		key = 'S',
+		mods = 'ALT',
+		action = wezterm.action_callback(function(win, pane)
+			if resurrect then
+				resurrect.tab_state.save_tab_action()
+			end
+		end),
+	},
+
+	-- ---- RESURRECT : RESTORE SESSIONS ----
+	{
+		key = 'r',
+		mods = 'ALT',
+		action = wezterm.action_callback(function(win, pane)
+			if resurrect then
+				resurrect.fuzzy_loader.fuzzy_load(win, pane, function(id, label)
+					local type = string.match(id, '^([^/]+)')
+					id = string.match(id, '([^/]+)$')
+					id = string.match(id, '(.+)%..+$')
+					local state = resurrect.state_manager.load_state(id, type)
+					if type == 'workspace' then
+						resurrect.workspace_state.restore_workspace(state, {
+							relative = true,
+							restore_text = true,
+							on_pane_restore = resurrect.tab_state.default_on_pane_restore,
+						})
+					elseif type == 'window' then
+						resurrect.window_state.restore_window(pane:window(), state, {
+							relative = true,
+							restore_text = true,
+							on_pane_restore = resurrect.tab_state.default_on_pane_restore,
+						})
+					elseif type == 'tab' then
+						resurrect.tab_state.restore_tab(pane:tab(), state, {
+							relative = true,
+							restore_text = true,
+							on_pane_restore = resurrect.tab_state.default_on_pane_restore,
+						})
+					end
+				end)
+			end
+		end),
+	},
+
+	-- ---- RESURRECT : DELETE SESSIONS ----
+	{
+		key = 'd',
+		mods = 'ALT',
+		action = wezterm.action_callback(function(win, pane)
+			if resurrect then
+				resurrect.fuzzy_loader.fuzzy_load(win, pane, function(id)
+					resurrect.state_manager.delete_state(id)
+				end, { title = 'Delete State', description = 'Select state to delete', fuzzy_description = 'Delete: ' })
+			end
+		end),
+	},
 }
 
 -- =============================================================================
@@ -283,5 +400,49 @@ wezterm.on('gui-attached', function(domain)
 		window:gui_window():maximize()
 	end
 end)
+
+-- =============================================================================
+-- RESURRECT : SESSION MANAGER
+-- =============================================================================
+-- Save sessions periodically (every 5 minutes)
+if resurrect then
+	resurrect.state_manager.periodic_save({
+		interval_seconds = 300,
+		save_workspaces = true,
+		save_windows = true,
+		save_tabs = true,
+	})
+else
+	wezterm.log_warn('resurrect.wezterm plugin not loaded - session save/restore unavailable')
+end
+
+-- =============================================================================
+-- AI HELPER : GITHUB COPILOT INTEGRATION
+-- =============================================================================
+-- Requires a GitHub Personal Access Token with 'copilot' scope
+-- Generate one at: https://github.com/settings/tokens
+-- Store your token in wezterm.local.lua as: os.setenv('GITHUB_COPILOT_TOKEN', 'ghp_...')
+local github_token = os.getenv('GITHUB_COPILOT_TOKEN') or ''
+
+if ai_helper then
+	ai_helper.apply_to_config(config, {
+		type = 'http',
+		api_url = 'https://api.githubcopilot.com/chat/completions',
+		api_key = github_token,
+		model = 'gpt-4o',
+		headers = {
+			['Editor-Version'] = 'vscode/1.85.0',
+			['Copilot-Integration-Id'] = 'vscode-chat',
+		},
+		keybinding = { key = 'i', mods = 'CTRL|SHIFT' },
+		keybinding_with_pane = { key = 'I', mods = 'CTRL|SHIFT|ALT' },
+		system_prompt = 'You are an assistant that specializes in CLI and Windows/PowerShell/WSL commands. Be brief and to the point. Print commands in a way that is easy to copy. Concatenate commands with && or || for ease of use.',
+		timeout = 30,
+		show_loading = true,
+		share_n_lines = 150,
+	})
+else
+	wezterm.log_warn('ai-helper.wezterm plugin not loaded - Copilot integration unavailable')
+end
 
 return config
