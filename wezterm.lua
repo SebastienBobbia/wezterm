@@ -121,6 +121,19 @@ config.visual_bell = {
 	target = 'CursorColor',
 }
 
+-- Pane visibility: active pane is bright & warm (yellowish), inactive panes are dimmed
+-- hue: 0=red, 0.17=yellow, 0.33=green, 0.5=cyan, 0.67=blue, 1.0=red
+config.active_pane_hsb = {
+	hue = 0.17,        -- yellow tone
+	saturation = 0.8,  -- fairly saturated
+	brightness = 1.1,  -- slightly brighter than normal
+}
+config.inactive_pane_hsb = {
+	hue = 1.0,         -- neutral (not shifted)
+	saturation = 0.6,  -- less saturated
+	brightness = 0.7,  -- darker/dimmer
+}
+
 -- =============================================================================
 -- KEYBINDINGS CONFIGURATION
 -- =============================================================================
