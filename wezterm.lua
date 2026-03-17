@@ -136,10 +136,10 @@ config.inactive_pane_hsb = {
 -- =============================================================================
 -- Note on smart-splits navigation keybindings:
 --   If smart-splits loads successfully, apply_to_config() below adds:
---     CTRL+h/j/k/l  → move between panes (passes through to Neovim when focused)
---     META+Left/Down/Up/Right → resize panes (passes through to Neovim)
---   The ALT+Arrow pane navigation keys below are kept for non-Neovim use.
---   The ALT+Arrow pane creation keys (CTRL+ALT+Arrow) are kept as-is.
+--     ALT+SHIFT+Arrow → move between panes (passes through to Neovim when focused)
+--     CTRL+SHIFT+Arrow → resize panes (passes through to Neovim)
+--   The fallback ALT+SHIFT+Arrow keys below are used when smart-splits is NOT loaded.
+--   The CTRL+ALT+Arrow pane creation keys are kept as-is.
 
 config.keys = {
 	-- ---- TAB MANAGEMENT ----
@@ -438,18 +438,19 @@ end
 -- SMART-SPLITS PLUGIN (seamless Neovim/WezTerm pane navigation)
 -- =============================================================================
 -- Keybindings added by smart_splits.apply_to_config:
---   CTRL+h/j/k/l        → move between panes (transparent with Neovim)
---   META+Left/Down/Up/Right → resize panes (transparent with Neovim)
--- Neovim side: install mrjones2014/smart-splits.nvim and bind the same keys.
+--   ALT+SHIFT+Arrow      → move between panes (transparent with Neovim)
+--   CTRL+SHIFT+Arrow     → resize panes (transparent with Neovim)
+-- These override the fallback bindings in config.keys above.
+-- Neovim side: install mrjones2014/smart-splits.nvim and bind <A-S-Arrow> / <C-S-Arrow>.
 if smart_splits then
 	smart_splits.apply_to_config(config, {
 		direction_keys = {
-			move   = { 'h', 'j', 'k', 'l' },
+			move   = { 'LeftArrow', 'DownArrow', 'UpArrow', 'RightArrow' },
 			resize = { 'LeftArrow', 'DownArrow', 'UpArrow', 'RightArrow' },
 		},
 		modifiers = {
-			move   = 'CTRL',
-			resize = 'META',
+			move   = 'ALT|SHIFT',
+			resize = 'CTRL|SHIFT',
 		},
 	})
 else
