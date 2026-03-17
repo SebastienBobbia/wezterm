@@ -58,9 +58,7 @@ config.harfbuzz_features = { 'calt=1', 'clig=1', 'liga=1' }
 -- COLORS & APPEARANCE CONFIGURATION
 -- =============================================================================
 -- Scheme names are case-sensitive. See: https://wezterm.org/colorschemes/
--- Using a LIGHT theme temporarily to verify theme application visually.
--- Switch back to 'Nord' once confirmed: config.color_scheme = 'Nord'
-config.color_scheme = 'Catppuccin Latte'
+config.color_scheme = 'Nord'
 
 -- Window appearance
 config.window_decorations = 'RESIZE' -- TITLE | RESIZE | NONE
@@ -93,26 +91,26 @@ config.tab_max_width = 32
 -- These match the active color_scheme; update if you change color_scheme.
 config.colors = {
 	tab_bar = {
-		background = '#EFF1F5',    -- Catppuccin Latte base
+		background = '#2E3440', -- nord0
 		active_tab = {
-			bg_color = '#1E66F5',  -- Catppuccin Latte blue
-			fg_color = '#EFF1F5',  -- Catppuccin Latte base
+			bg_color = '#88C0D0', -- nord8
+			fg_color = '#2E3440', -- nord0
 			intensity = 'Bold',
 			underline = 'None',
 			italic = false,
 			strikethrough = false,
 		},
 		inactive_tab = {
-			bg_color = '#DCE0E8',  -- Catppuccin Latte crust
-			fg_color = '#4C4F69',  -- Catppuccin Latte text
+			bg_color = '#3B4252', -- nord1
+			fg_color = '#D8DEE9', -- nord4
 		},
 		inactive_tab_hover = {
-			bg_color = '#CCD0DA',  -- Catppuccin Latte surface0
-			fg_color = '#4C4F69',  -- Catppuccin Latte text
+			bg_color = '#434C5E', -- nord2
+			fg_color = '#ECEFF4', -- nord6
 		},
 		new_tab = {
-			bg_color = '#DCE0E8',  -- Catppuccin Latte crust
-			fg_color = '#4C4F69',  -- Catppuccin Latte text
+			bg_color = '#3B4252', -- nord1
+			fg_color = '#D8DEE9', -- nord4
 		},
 	},
 }
@@ -128,9 +126,9 @@ config.visual_bell = {
 -- Note: WezTerm only supports `inactive_pane_hsb` (there is no `active_pane_hsb`).
 -- The active pane always renders at full brightness; inactive panes are adjusted.
 config.inactive_pane_hsb = {
-	hue = 1.0,         -- no hue shift
-	saturation = 0.7,  -- slightly desaturated
-	brightness = 0.6,  -- noticeably dimmed
+	hue = 1.0,     -- no hue shift
+	saturation = 0.7, -- slightly desaturated
+	brightness = 0.6, -- noticeably dimmed
 }
 
 -- =============================================================================
@@ -193,17 +191,17 @@ config.keys = {
 			end
 		end),
 	},
-	{ key = 'v',          mods = 'CTRL',       action = wezterm.action.PasteFrom 'Clipboard' },
+	{ key = 'v', mods = 'CTRL',       action = wezterm.action.PasteFrom 'Clipboard' },
 
 	-- ---- SEARCH & SCROLLBACK ----
-	{ key = 'f',          mods = 'CTRL|SHIFT', action = wezterm.action.Search { CaseInSensitiveString = '' } },
-	{ key = 'r',          mods = 'CTRL|SHIFT', action = wezterm.action.ReloadConfiguration },
+	{ key = 'f', mods = 'CTRL|SHIFT', action = wezterm.action.Search { CaseInSensitiveString = '' } },
+	{ key = 'r', mods = 'CTRL|SHIFT', action = wezterm.action.ReloadConfiguration },
 
 	-- ---- QUICK SELECT (Select text patterns in pane) ----
-	{ key = 's',          mods = 'CTRL|SHIFT', action = wezterm.action.QuickSelect },
+	{ key = 's', mods = 'CTRL|SHIFT', action = wezterm.action.QuickSelect },
 
 	-- ---- LAUNCHER (open launch_menu to select shell) ----
-	{ key = 'l',          mods = 'ALT',        action = wezterm.action.ShowLauncher },
+	{ key = 'l', mods = 'ALT',        action = wezterm.action.ShowLauncher },
 
 	-- ---- RESURRECT : SAVE SESSIONS ----
 	{
@@ -306,10 +304,10 @@ config.mouse_bindings = {
 -- QUICK SELECT PATTERNS
 -- =============================================================================
 config.quick_select_patterns = {
-	'[0-9a-f]{7,40}',                                    -- git hashes
-	'[\\w./-]+\\.\\w+:\\d+',                             -- file:line patterns
-	'\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}',        -- IPv4 addresses
-	'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}',  -- email addresses
+	'[0-9a-f]{7,40}',                               -- git hashes
+	'[\\w./-]+\\.\\w+:\\d+',                        -- file:line patterns
+	'\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}',    -- IPv4 addresses
+	'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}', -- email addresses
 }
 
 -- =============================================================================
@@ -391,7 +389,7 @@ config.window_background_opacity = 0.85
 -- internally. Some built-in schemes may lack fields that tabline expects
 -- (e.g. .ansi), which causes a runtime error. Passing the scheme object
 -- directly bypasses that lookup and avoids the crash.
-local _scheme = wezterm.color.get_builtin_schemes()['Catppuccin Latte']
+local _scheme = wezterm.color.get_builtin_schemes()['Nord']
 
 if tabline then
 	tabline.setup({
@@ -420,7 +418,7 @@ if tabline then
 				'index',
 				{ 'parent', padding = 0 },
 				'/',
-				{ 'cwd', padding = { left = 0, right = 1 } },
+				{ 'cwd',    padding = { left = 0, right = 1 } },
 				{ 'zoomed', padding = 0 },
 			},
 			tab_inactive = { 'index', { 'process', padding = { left = 0, right = 1 } } },
@@ -466,7 +464,7 @@ if resurrect then
 	-- resurrect.state_manager.change_state_save_dir('C:\\Users\\NexusLoop\\AppData\\Local\\wezterm\\resurrect')
 
 	resurrect.state_manager.periodic_save({
-		interval_seconds = 300,  -- every 5 minutes
+		interval_seconds = 300, -- every 5 minutes
 		save_workspaces = true,
 		save_windows = true,
 		save_tabs = true,
@@ -494,7 +492,8 @@ if ai_helper then
 		},
 		keybinding = { key = 'i', mods = 'CTRL|SHIFT' },
 		keybinding_with_pane = { key = 'I', mods = 'CTRL|SHIFT|ALT' },
-		system_prompt = 'You are an assistant that specializes in CLI and Windows/PowerShell/WSL commands. Be brief and to the point. Print commands in a way that is easy to copy. Concatenate commands with && or || for ease of use.',
+		system_prompt =
+		'You are an assistant that specializes in CLI and Windows/PowerShell/WSL commands. Be brief and to the point. Print commands in a way that is easy to copy. Concatenate commands with && or || for ease of use.',
 		timeout = 30,
 		show_loading = true,
 		share_n_lines = 150,
