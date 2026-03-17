@@ -1,105 +1,72 @@
--- WezTerm Configuration Starter
--- A comprehensive configuration covering fonts, colors, keybindings, and more
+-- WezTerm Configuration
 -- Reload config: Press Ctrl+Shift+R in WezTerm
 
 local wezterm = require 'wezterm'
 local config = wezterm.config_builder()
 
 -- =============================================================================
--- PLUGINS (LAZY LOADED)
+-- PLUGINS
 -- =============================================================================
--- Plugins are loaded lazily (on-demand) to avoid startup delays
--- They will be loaded when first used, not at startup
-local resurrect = nil
-local ai_helper = nil
-local plugins_loading = false
+-- Plugins are loaded at top-level (required for periodic_save and apply_to_config
+-- to work correctly at config evaluation time).
 
-local function load_plugins_async()
-	if plugins_loading or (resurrect and ai_helper) then
-		return
-	end
-	plugins_loading = true
-	
-	wezterm.log_info('Loading plugins in background...')
-	
-	-- Try to load each plugin independently
-	if not resurrect then
-		local success, plugin = pcall(function()
-			return wezterm.plugin.require('https://github.com/MLFlexer/resurrect.wezterm')
-		end)
-		if success then
-			resurrect = plugin
-			wezterm.log_info('resurrect.wezterm loaded successfully')
-		else
-			wezterm.log_warn('Failed to load resurrect.wezterm: ' .. tostring(plugin))
-		end
-	end
-	
-	if not ai_helper then
-		local success, plugin = pcall(function()
-			return wezterm.plugin.require('https://github.com/Michal1993r/ai-helper.wezterm')
-		end)
-		if success then
-			ai_helper = plugin
-			wezterm.log_info('ai-helper.wezterm loaded successfully')
-		else
-			wezterm.log_warn('Failed to load ai-helper.wezterm: ' .. tostring(plugin))
-		end
-	end
+local resurrect_ok, resurrect = pcall(function()
+	return wezterm.plugin.require('https://github.com/MLFlexer/resurrect.wezterm')
+end)
+if not resurrect_ok then
+	resurrect = nil
+	wezterm.log_warn('Failed to load resurrect.wezterm: ' .. tostring(resurrect))
 end
 
--- Load plugins after startup (gives time for GUI to render first)
-wezterm.on('gui-startup', function(cmd)
-	load_plugins_async()
+local ai_helper_ok, ai_helper = pcall(function()
+	return wezterm.plugin.require('https://github.com/Michal1993r/ai-helper.wezterm')
 end)
+if not ai_helper_ok then
+	ai_helper = nil
+	wezterm.log_warn('Failed to load ai-helper.wezterm: ' .. tostring(ai_helper))
+end
+
+local tabline_ok, tabline = pcall(function()
+	return wezterm.plugin.require('https://github.com/michaelbrusegard/tabline.wez')
+end)
+if not tabline_ok then
+	tabline = nil
+	wezterm.log_warn('Failed to load tabline.wez: ' .. tostring(tabline))
+end
+
+local smart_splits_ok, smart_splits = pcall(function()
+	return wezterm.plugin.require('https://github.com/mrjones2014/smart-splits.nvim')
+end)
+if not smart_splits_ok then
+	smart_splits = nil
+	wezterm.log_warn('Failed to load smart-splits.nvim: ' .. tostring(smart_splits))
+end
 
 -- =============================================================================
 -- FONTS CONFIGURATION
 -- =============================================================================
--- Configure primary font with fallback support for symbols and emojis
-config.font = wezterm.font('JetBrains Mono')
+-- Font with fallback chain for symbols and emojis
+config.font = wezterm.font_with_fallback({
+	'JetBrains Mono',
+	'Symbols Nerd Font Mono',
+	'Noto Color Emoji',
+})
 config.font_size = 12.0
-
--- Font fallback chain: JetBrains Mono → Nerd Font Symbols → Noto Color Emoji
-config.font_rules = {
-	{
-		intensity = 'Normal',
-		italic = false,
-		font = wezterm.font('JetBrains Mono'),
-	},
-	{
-		intensity = 'Bold',
-		italic = false,
-		font = wezterm.font('JetBrains Mono', { weight = 'Bold' }),
-	},
-	{
-		intensity = 'Normal',
-		italic = true,
-		font = wezterm.font('JetBrains Mono', { italic = true }),
-	},
-	{
-		intensity = 'Bold',
-		italic = true,
-		font = wezterm.font('JetBrains Mono', { weight = 'Bold', italic = true }),
-	},
-}
-
--- Fallback fonts for symbols and emojis (bundled with WezTerm)
 config.harfbuzz_features = { 'calt=1', 'clig=1', 'liga=1' }
 
 -- =============================================================================
 -- COLORS & APPEARANCE CONFIGURATION
 -- =============================================================================
--- Use a built-in color scheme (1001+ available from iTerm2, base16, Gogh, etc.)
 -- Scheme names are case-sensitive. See: https://wezterm.org/colorschemes/
-config.color_scheme = 'nord'
+config.color_scheme = 'Nord'
 
 -- Window appearance
 config.window_decorations = 'RESIZE' -- TITLE | RESIZE | NONE
 
--- Window sizing
-config.initial_rows = nil -- Let OS handle window size
-config.initial_cols = nil -- Let OS handle window size
+-- Window sizing — window is maximized on startup (gui-attached below),
+-- so these only affect the brief moment before maximization.
+config.initial_cols = 140
+config.initial_rows = 50
 
 config.window_padding = {
 	left = 10,
@@ -111,38 +78,38 @@ config.window_padding = {
 -- Cursor styling
 config.default_cursor_style = 'BlinkingBar'
 config.cursor_thickness = 2
--- underline_position: number (pixels) or strings like '-2px', '0.1cell', '2pt', '200%'
 config.underline_position = -2
 config.underline_thickness = '1px'
 
--- Tab bar styling: 'fancy' uses native tabs, 'retro' uses old-style
-config.tab_bar_at_bottom = true  -- Moved tabs to bottom
-config.use_fancy_tab_bar = false -- Using retro style (simpler)
+-- Tab bar: tabline.wez will configure these if loaded; set sensible defaults
+-- in case tabline fails to load. tabline requires use_fancy_tab_bar = false.
+config.tab_bar_at_bottom = true
+config.use_fancy_tab_bar = false
 config.tab_max_width = 32
 
--- Tab bar colors
+-- Tab bar colors aligned with Nord palette (used when tabline.wez is not loaded)
 config.colors = {
 	tab_bar = {
-		background = '#0b0022',
+		background = '#2E3440',    -- nord0
 		active_tab = {
-			bg_color = '#2e8b57',
-			fg_color = '#ffffff',
+			bg_color = '#88C0D0',  -- nord8
+			fg_color = '#2E3440',  -- nord0
 			intensity = 'Bold',
 			underline = 'None',
 			italic = false,
 			strikethrough = false,
 		},
 		inactive_tab = {
-			bg_color = '#1e1e1e',
-			fg_color = '#808080',
+			bg_color = '#3B4252',  -- nord1
+			fg_color = '#D8DEE9',  -- nord4
 		},
 		inactive_tab_hover = {
-			bg_color = '#3e3e3e',
-			fg_color = '#909090',
+			bg_color = '#434C5E',  -- nord2
+			fg_color = '#ECEFF4',  -- nord6
 		},
 		new_tab = {
-			bg_color = '#1e1e1e',
-			fg_color = '#808080',
+			bg_color = '#3B4252',  -- nord1
+			fg_color = '#D8DEE9',  -- nord4
 		},
 	},
 }
@@ -157,11 +124,12 @@ config.visual_bell = {
 -- =============================================================================
 -- KEYBINDINGS CONFIGURATION
 -- =============================================================================
--- Keybinding syntax:
---   phys:LETTER = physical key position (position-independent)
---   mapped:LETTER = mapped key (layout-dependent, e.g., QWERTY)
---   Modifiers: CTRL, ALT, SHIFT, SUPER
--- Available actions: SpawnTab, SpawnWindow, CloseCurrentPane, etc.
+-- Note on smart-splits navigation keybindings:
+--   If smart-splits loads successfully, apply_to_config() below adds:
+--     CTRL+h/j/k/l  → move between panes (passes through to Neovim when focused)
+--     META+Left/Down/Up/Right → resize panes (passes through to Neovim)
+--   The ALT+Arrow pane navigation keys below are kept for non-Neovim use.
+--   The ALT+Arrow pane creation keys (CTRL+ALT+Arrow) are kept as-is.
 
 config.keys = {
 	-- ---- TAB MANAGEMENT ----
@@ -170,22 +138,24 @@ config.keys = {
 	{ key = 'Tab',        mods = 'CTRL',       action = wezterm.action.ActivateTabRelative(1) },
 	{ key = 'Tab',        mods = 'CTRL|SHIFT', action = wezterm.action.ActivateTabRelative(-1) },
 
-	-- ---- PANE CREATION (Ctrl+Shift+Arrow to create pane in direction) ----
+	-- ---- PANE CREATION (Ctrl+Alt+Arrow to create pane in direction) ----
 	{ key = 'LeftArrow',  mods = 'CTRL|ALT',   action = wezterm.action.SplitPane { direction = 'Left', size = { Percent = 30 } } },
 	{ key = 'RightArrow', mods = 'CTRL|ALT',   action = wezterm.action.SplitPane { direction = 'Right', size = { Percent = 30 } } },
 	{ key = 'UpArrow',    mods = 'CTRL|ALT',   action = wezterm.action.SplitPane { direction = 'Up', size = { Percent = 30 } } },
 	{ key = 'DownArrow',  mods = 'CTRL|ALT',   action = wezterm.action.SplitPane { direction = 'Down', size = { Percent = 30 } } },
 
-	-- ---- PANE MANAGEMENT (Alt+key) ----
+	-- ---- PANE MANAGEMENT ----
 	{ key = 'w',          mods = 'ALT',        action = wezterm.action.CloseCurrentPane { confirm = false } },
 	{ key = 'n',          mods = 'ALT',        action = wezterm.action.SpawnTab 'CurrentPaneDomain' },
 	{ key = 'm',          mods = 'ALT',        action = wezterm.action.TogglePaneZoomState },
 
-	-- ---- PANE NAVIGATION (Quick: Ctrl+Alt+Arrow) ----
-	{ key = 'LeftArrow',  mods = 'ALT',        action = wezterm.action.ActivatePaneDirection 'Left' },
-	{ key = 'RightArrow', mods = 'ALT',        action = wezterm.action.ActivatePaneDirection 'Right' },
-	{ key = 'UpArrow',    mods = 'ALT',        action = wezterm.action.ActivatePaneDirection 'Up' },
-	{ key = 'DownArrow',  mods = 'ALT',        action = wezterm.action.ActivatePaneDirection 'Down' },
+	-- ---- PANE NAVIGATION (fallback when smart-splits not loaded) ----
+	-- ALT+Arrow alone is intercepted by Windows Snap before WezTerm sees it.
+	-- ALT+SHIFT+Arrow avoids that conflict.
+	{ key = 'LeftArrow',  mods = 'ALT|SHIFT',  action = wezterm.action.ActivatePaneDirection 'Left' },
+	{ key = 'RightArrow', mods = 'ALT|SHIFT',  action = wezterm.action.ActivatePaneDirection 'Right' },
+	{ key = 'UpArrow',    mods = 'ALT|SHIFT',  action = wezterm.action.ActivatePaneDirection 'Up' },
+	{ key = 'DownArrow',  mods = 'ALT|SHIFT',  action = wezterm.action.ActivatePaneDirection 'Down' },
 
 	-- ---- PANE RESIZING ----
 	{ key = 'LeftArrow',  mods = 'CTRL|SHIFT', action = wezterm.action.AdjustPaneSize { 'Left', 5 } },
@@ -198,15 +168,30 @@ config.keys = {
 	{ key = 'F11',        mods = '',           action = wezterm.action.ToggleFullScreen },
 
 	-- ---- COPY/PASTE & SELECTION ----
-	{ key = 'c',          mods = 'CTRL',       action = wezterm.action.CopyTo 'Clipboard' },
+	-- Ctrl+C: copy if text is selected, otherwise send SIGINT normally
+	{
+		key = 'c',
+		mods = 'CTRL',
+		action = wezterm.action_callback(function(window, pane)
+			local sel = window:get_selection_text_for_pane(pane)
+			if sel and sel ~= '' then
+				window:perform_action(wezterm.action.CopyTo('Clipboard'), pane)
+			else
+				window:perform_action(wezterm.action.SendKey { key = 'c', mods = 'CTRL' }, pane)
+			end
+		end),
+	},
 	{ key = 'v',          mods = 'CTRL',       action = wezterm.action.PasteFrom 'Clipboard' },
 
 	-- ---- SEARCH & SCROLLBACK ----
 	{ key = 'f',          mods = 'CTRL|SHIFT', action = wezterm.action.Search { CaseInSensitiveString = '' } },
 	{ key = 'r',          mods = 'CTRL|SHIFT', action = wezterm.action.ReloadConfiguration },
 
-	-- ---- QUICK SELECT (Select text in pane) ----
+	-- ---- QUICK SELECT (Select text patterns in pane) ----
 	{ key = 's',          mods = 'CTRL|SHIFT', action = wezterm.action.QuickSelect },
+
+	-- ---- LAUNCHER (open launch_menu to select shell) ----
+	{ key = 'l',          mods = 'ALT',        action = wezterm.action.ShowLauncher },
 
 	-- ---- RESURRECT : SAVE SESSIONS ----
 	{
@@ -216,6 +201,8 @@ config.keys = {
 			if resurrect then
 				resurrect.state_manager.save_state(resurrect.workspace_state.get_workspace_state())
 				resurrect.window_state.save_window_action()
+			else
+				wezterm.log_warn('resurrect not loaded')
 			end
 		end),
 	},
@@ -276,86 +263,99 @@ config.keys = {
 			end
 		end),
 	},
+
+	-- ---- AI HELPER ----
+	-- Keybindings for ai-helper are registered below via apply_to_config
+	-- if the plugin loaded successfully. These placeholders are unused if
+	-- apply_to_config is called, but kept here as documentation.
+	-- CTRL+SHIFT+i  → open AI prompt
+	-- CTRL+SHIFT+ALT+I → open AI prompt with pane context
+}
+
+-- =============================================================================
+-- MOUSE BINDINGS
+-- =============================================================================
+config.mouse_bindings = {
+	-- Right-click to paste from clipboard
+	{
+		event = { Down = { streak = 1, button = 'Right' } },
+		mods = 'NONE',
+		action = wezterm.action.PasteFrom 'Clipboard',
+	},
+	-- Ctrl+Click to open hyperlinks
+	{
+		event = { Up = { streak = 1, button = 'Left' } },
+		mods = 'CTRL',
+		action = wezterm.action.OpenLinkAtMouseCursor,
+	},
+}
+
+-- =============================================================================
+-- QUICK SELECT PATTERNS
+-- =============================================================================
+config.quick_select_patterns = {
+	'[0-9a-f]{7,40}',                                    -- git hashes
+	'[\\w./-]+\\.\\w+:\\d+',                             -- file:line patterns
+	'\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}',        -- IPv4 addresses
+	'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}',  -- email addresses
 }
 
 -- =============================================================================
 -- PANE & WINDOW MANAGEMENT
 -- =============================================================================
--- Automatically renumber panes when one is closed
 config.automatically_reload_config = true
-
--- Initial size of new windows
-config.initial_cols = 140
-config.initial_rows = 50
 
 -- =============================================================================
 -- SCROLLBACK CONFIGURATION
 -- =============================================================================
--- Maximum lines of scrollback history per pane (default is 3500)
 config.scrollback_lines = 5000
-
--- Scroll wheel behavior
 config.mouse_wheel_scrolls_tabs = false
 
 -- =============================================================================
 -- TERMINAL BEHAVIOR
 -- =============================================================================
--- Exit behavior when closing panes/windows
--- NeverPrompt: Close without confirmation
--- AlwaysPrompt: Always ask for confirmation before closing
 config.window_close_confirmation = 'NeverPrompt'
-
--- Audible bell: 'Disabled' = no system beep, 'SystemBeep' = system sound
 config.audible_bell = 'Disabled'
-
--- Adjust scrollback on output (follow along as new text appears)
 config.adjust_window_size_when_changing_font_size = true
-
--- Enable hyperlink detection (clickable URLs in terminal)
 config.hyperlink_rules = wezterm.default_hyperlink_rules()
+
+-- Close pane on clean exit (exit code 0); keep open on error for inspection
+config.exit_behavior = 'CloseOnCleanExit'
 
 -- =============================================================================
 -- WSL INTEGRATION
 -- =============================================================================
--- Use WezTerm's default WSL domain detection
--- This automatically creates domains for all WSL distributions found on the system
--- local wsl_domains = wezterm.default_wsl_domains()
--- config.wsl_domains = wsl_domains
+-- Use WezTerm's built-in WSL domain for proper cwd tracking and shell integration.
+config.default_domain = 'WSL:Ubuntu'
 
--- Set default domain to Ubuntu WSL
--- The domain name follows the format 'WSL:DistroName'
--- config.default_domain = 'WSL:Ubuntu'
-
---- Set Pwsh as the default on Windows
-config.default_prog = { 'pwsh.exe', '-NoLogo' }
-
--- Launch menu for quick selection
+-- Launch menu for quick shell selection (ALT+L to open)
 config.launch_menu = {
 	{
-		label = 'PowerShell (Default)',
+		label = 'WSL Ubuntu',
+		args = { 'wsl.exe', '--distribution', 'Ubuntu' },
+	},
+	{
+		label = 'PowerShell (Modern)',
+		args = { 'pwsh.exe', '-NoLogo' },
+	},
+	{
+		label = 'PowerShell (Legacy)',
 		args = { 'powershell.exe', '-NoLogo' },
 	},
 	{
-		label = 'Pwsh (Modern PowerShell)',
-		args = { 'pwsh.exe', '-NoLogo' },
+		label = 'Command Prompt',
+		args = { 'cmd.exe' },
 	},
 }
 
 -- =============================================================================
 -- RENDERING & FRONTEND
 -- =============================================================================
--- Frontend rendering engine: 'OpenGL' (modern, default), 'WebGpu', or 'Software'
 config.front_end = 'OpenGL'
-
--- GPU-accelerated rendering options
 config.freetype_load_flags = 'DEFAULT'
 config.freetype_render_target = 'HorizontalLcd'
-
--- Anti-aliasing
 config.anti_alias_custom_block_glyphs = true
-
--- Performance options
-config.animation_fps = 1 -- Higher values = smoother animation, lower values = less CPU
+config.animation_fps = 1
 config.cursor_blink_ease_in = 'Linear'
 config.cursor_blink_ease_out = 'Linear'
 config.cursor_blink_rate = 800
@@ -363,65 +363,111 @@ config.cursor_blink_rate = 800
 -- =============================================================================
 -- WINDOWS AESTHETICS
 -- =============================================================================
--- Apply the Mica backdrop effect (Windows 11 frosted glass appearance)
--- Mica creates a semi-transparent background with a modern Windows 11 aesthetic
--- Available options: 'None', 'Mica', 'Tabbed', 'TabbedDark'
+-- Mica backdrop effect (Windows 11 frosted glass)
 config.win32_system_backdrop = 'Mica'
 
--- Set window opacity to fully transparent for Mica effect
--- This allows the Mica backdrop to be fully visible
--- Range: 0.0 (fully transparent) to 1.0 (fully opaque)
-config.window_background_opacity = 0
+-- 0.85 allows Mica to show through while keeping text readable
+config.window_background_opacity = 0.85
 
 -- =============================================================================
--- LOCAL CONFIGURATION OVERRIDE
+-- TABLINE PLUGIN (tab bar + status bar)
 -- =============================================================================
--- Load local configuration if it exists (wezterm.local.lua)
--- This allows machine-specific overrides without versioning
-local ok, local_config = pcall(function()
-	return require 'wezterm.local'
-end)
+-- tabline.wez replaces format-tab-title and update-status with a rich bar
+-- inspired by lualine.nvim.
+--
+-- tabline resolves theme names by calling wezterm.color.get_builtin_schemes()
+-- internally. Some built-in schemes (including 'Nord') may lack fields that
+-- tabline expects (e.g. .ansi), which causes a runtime error. Passing the
+-- scheme object directly bypasses that lookup and avoids the crash.
+local _nord_scheme = wezterm.color.get_builtin_schemes()['Nord']
 
-if ok and local_config then
-	-- Merge local config into main config
-	for key, value in pairs(local_config) do
-		config[key] = value
-	end
+if tabline then
+	tabline.setup({
+		options = {
+			icons_enabled = true,
+			theme = _nord_scheme,
+			tabs_enabled = true,
+			section_separators = {
+				left = wezterm.nerdfonts.pl_left_hard_divider,
+				right = wezterm.nerdfonts.pl_right_hard_divider,
+			},
+			component_separators = {
+				left = wezterm.nerdfonts.pl_left_soft_divider,
+				right = wezterm.nerdfonts.pl_right_soft_divider,
+			},
+			tab_separators = {
+				left = wezterm.nerdfonts.pl_left_hard_divider,
+				right = wezterm.nerdfonts.pl_right_hard_divider,
+			},
+		},
+		sections = {
+			tabline_a = { 'mode' },
+			tabline_b = { 'workspace' },
+			tabline_c = { ' ' },
+			tab_active = {
+				'index',
+				{ 'parent', padding = 0 },
+				'/',
+				{ 'cwd', padding = { left = 0, right = 1 } },
+				{ 'zoomed', padding = 0 },
+			},
+			tab_inactive = { 'index', { 'process', padding = { left = 0, right = 1 } } },
+			tabline_x = { 'ram', 'cpu' },
+			tabline_y = { 'datetime', 'battery' },
+			tabline_z = { 'domain' },
+		},
+		extensions = resurrect and { 'resurrect' } or {},
+	})
+	-- Applies tab_bar_at_bottom=true, use_fancy_tab_bar=false, etc.
+	tabline.apply_to_config(config)
+else
+	wezterm.log_warn('tabline.wez not loaded - using default tab bar')
 end
 
 -- =============================================================================
--- WINDOW STARTUP BEHAVIOR
+-- SMART-SPLITS PLUGIN (seamless Neovim/WezTerm pane navigation)
 -- =============================================================================
--- Maximize window on startup
-wezterm.on('gui-attached', function(domain)
-	local mux = wezterm.mux
-	local workspace = mux.get_active_workspace()
-	for _, window in ipairs(mux.all_windows()) do
-		window:gui_window():maximize()
-	end
-end)
+-- Keybindings added by smart_splits.apply_to_config:
+--   CTRL+h/j/k/l        → move between panes (transparent with Neovim)
+--   META+Left/Down/Up/Right → resize panes (transparent with Neovim)
+-- Neovim side: install mrjones2014/smart-splits.nvim and bind the same keys.
+if smart_splits then
+	smart_splits.apply_to_config(config, {
+		direction_keys = {
+			move   = { 'h', 'j', 'k', 'l' },
+			resize = { 'LeftArrow', 'DownArrow', 'UpArrow', 'RightArrow' },
+		},
+		modifiers = {
+			move   = 'CTRL',
+			resize = 'META',
+		},
+	})
+else
+	wezterm.log_warn('smart-splits.nvim not loaded - using standard pane navigation')
+end
 
 -- =============================================================================
--- RESURRECT : SESSION MANAGER
+-- RESURRECT : SESSION MANAGER (periodic auto-save)
 -- =============================================================================
--- Save sessions periodically (every 5 minutes)
 if resurrect then
+	-- Save state dir on Windows: ensure WezTerm has write access
+	-- resurrect.state_manager.change_state_save_dir('C:\\Users\\NexusLoop\\AppData\\Local\\wezterm\\resurrect')
+
 	resurrect.state_manager.periodic_save({
-		interval_seconds = 300,
+		interval_seconds = 300,  -- every 5 minutes
 		save_workspaces = true,
 		save_windows = true,
 		save_tabs = true,
 	})
 else
-	wezterm.log_warn('resurrect.wezterm plugin not loaded - session save/restore unavailable')
+	wezterm.log_warn('resurrect.wezterm not loaded - session save/restore unavailable')
 end
 
 -- =============================================================================
 -- AI HELPER : GITHUB COPILOT INTEGRATION
 -- =============================================================================
--- Requires a GitHub Personal Access Token with 'copilot' scope
--- Generate one at: https://github.com/settings/tokens
--- Store your token in wezterm.local.lua as: os.setenv('GITHUB_COPILOT_TOKEN', 'ghp_...')
+-- Requires a GitHub Personal Access Token with 'copilot' scope.
+-- Set GITHUB_COPILOT_TOKEN env variable before launching WezTerm.
 local github_token = os.getenv('GITHUB_COPILOT_TOKEN') or ''
 
 if ai_helper then
@@ -442,7 +488,34 @@ if ai_helper then
 		share_n_lines = 150,
 	})
 else
-	wezterm.log_warn('ai-helper.wezterm plugin not loaded - Copilot integration unavailable')
+	wezterm.log_warn('ai-helper.wezterm not loaded - Copilot integration unavailable')
 end
+
+-- =============================================================================
+-- LOCAL CONFIGURATION OVERRIDE
+-- =============================================================================
+-- Load local configuration if it exists (wezterm.local.lua).
+-- Returns a table; each key overrides the corresponding config value.
+-- Deep-merge is not supported: table values replace entirely.
+local ok, local_config = pcall(function()
+	return require 'wezterm.local'
+end)
+
+if ok and local_config then
+	for key, value in pairs(local_config) do
+		config[key] = value
+	end
+end
+
+-- =============================================================================
+-- WINDOW STARTUP BEHAVIOR
+-- =============================================================================
+-- Maximize window on startup
+wezterm.on('gui-attached', function(domain)
+	local mux = wezterm.mux
+	for _, window in ipairs(mux.all_windows()) do
+		window:gui_window():maximize()
+	end
+end)
 
 return config
