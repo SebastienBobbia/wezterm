@@ -58,7 +58,9 @@ config.harfbuzz_features = { 'calt=1', 'clig=1', 'liga=1' }
 -- COLORS & APPEARANCE CONFIGURATION
 -- =============================================================================
 -- Scheme names are case-sensitive. See: https://wezterm.org/colorschemes/
-config.color_scheme = 'Nord'
+-- Using a LIGHT theme temporarily to verify theme application visually.
+-- Switch back to 'Nord' once confirmed: config.color_scheme = 'Nord'
+config.color_scheme = 'Catppuccin Latte'
 
 -- Window appearance
 config.window_decorations = 'RESIZE' -- TITLE | RESIZE | NONE
@@ -87,29 +89,30 @@ config.tab_bar_at_bottom = true
 config.use_fancy_tab_bar = false
 config.tab_max_width = 32
 
--- Tab bar colors aligned with Nord palette (used when tabline.wez is not loaded)
+-- Tab bar colors (fallback when tabline.wez is not loaded).
+-- These match the active color_scheme; update if you change color_scheme.
 config.colors = {
 	tab_bar = {
-		background = '#2E3440',    -- nord0
+		background = '#EFF1F5',    -- Catppuccin Latte base
 		active_tab = {
-			bg_color = '#88C0D0',  -- nord8
-			fg_color = '#2E3440',  -- nord0
+			bg_color = '#1E66F5',  -- Catppuccin Latte blue
+			fg_color = '#EFF1F5',  -- Catppuccin Latte base
 			intensity = 'Bold',
 			underline = 'None',
 			italic = false,
 			strikethrough = false,
 		},
 		inactive_tab = {
-			bg_color = '#3B4252',  -- nord1
-			fg_color = '#D8DEE9',  -- nord4
+			bg_color = '#DCE0E8',  -- Catppuccin Latte crust
+			fg_color = '#4C4F69',  -- Catppuccin Latte text
 		},
 		inactive_tab_hover = {
-			bg_color = '#434C5E',  -- nord2
-			fg_color = '#ECEFF4',  -- nord6
+			bg_color = '#CCD0DA',  -- Catppuccin Latte surface0
+			fg_color = '#4C4F69',  -- Catppuccin Latte text
 		},
 		new_tab = {
-			bg_color = '#3B4252',  -- nord1
-			fg_color = '#D8DEE9',  -- nord4
+			bg_color = '#DCE0E8',  -- Catppuccin Latte crust
+			fg_color = '#4C4F69',  -- Catppuccin Latte text
 		},
 	},
 }
@@ -121,17 +124,13 @@ config.visual_bell = {
 	target = 'CursorColor',
 }
 
--- Pane visibility: active pane is bright & warm (yellowish), inactive panes are dimmed
--- hue: 0=red, 0.17=yellow, 0.33=green, 0.5=cyan, 0.67=blue, 1.0=red
-config.active_pane_hsb = {
-	hue = 0.17,        -- yellow tone
-	saturation = 0.8,  -- fairly saturated
-	brightness = 1.1,  -- slightly brighter than normal
-}
+-- Pane visibility: dim inactive panes so the active pane stands out.
+-- Note: WezTerm only supports `inactive_pane_hsb` (there is no `active_pane_hsb`).
+-- The active pane always renders at full brightness; inactive panes are adjusted.
 config.inactive_pane_hsb = {
-	hue = 1.0,         -- neutral (not shifted)
-	saturation = 0.6,  -- less saturated
-	brightness = 0.7,  -- darker/dimmer
+	hue = 1.0,         -- no hue shift
+	saturation = 0.7,  -- slightly desaturated
+	brightness = 0.6,  -- noticeably dimmed
 }
 
 -- =============================================================================
@@ -389,16 +388,16 @@ config.window_background_opacity = 0.85
 -- inspired by lualine.nvim.
 --
 -- tabline resolves theme names by calling wezterm.color.get_builtin_schemes()
--- internally. Some built-in schemes (including 'Nord') may lack fields that
--- tabline expects (e.g. .ansi), which causes a runtime error. Passing the
--- scheme object directly bypasses that lookup and avoids the crash.
-local _nord_scheme = wezterm.color.get_builtin_schemes()['Nord']
+-- internally. Some built-in schemes may lack fields that tabline expects
+-- (e.g. .ansi), which causes a runtime error. Passing the scheme object
+-- directly bypasses that lookup and avoids the crash.
+local _scheme = wezterm.color.get_builtin_schemes()['Catppuccin Latte']
 
 if tabline then
 	tabline.setup({
 		options = {
 			icons_enabled = true,
-			theme = _nord_scheme,
+			theme = _scheme,
 			tabs_enabled = true,
 			section_separators = {
 				left = wezterm.nerdfonts.pl_left_hard_divider,
@@ -523,11 +522,15 @@ end
 -- =============================================================================
 -- WINDOW STARTUP BEHAVIOR
 -- =============================================================================
--- Maximize window on startup
+-- Maximize windows in the active workspace on startup.
+-- Filter by workspace to avoid touching unrelated windows or spawning extras.
 wezterm.on('gui-attached', function(domain)
 	local mux = wezterm.mux
+	local workspace = mux.get_active_workspace()
 	for _, window in ipairs(mux.all_windows()) do
-		window:gui_window():maximize()
+		if window:get_workspace() == workspace then
+			window:gui_window():maximize()
+		end
 	end
 end)
 
