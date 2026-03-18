@@ -1,0 +1,7 @@
+# Local configuration - DO NOT COMMIT
+wezterm.local.lua
+
+# WezTerm cache and runtime files
+state.db
+state.db-shm
+state.db-wal

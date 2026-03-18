@@ -335,8 +335,9 @@ config.exit_behavior = 'CloseOnCleanExit'
 -- =============================================================================
 -- WSL INTEGRATION
 -- =============================================================================
--- Use WezTerm's built-in WSL domain for proper cwd tracking and shell integration.
-config.default_domain = 'WSL:Ubuntu'
+-- default_domain is intentionally NOT set here.
+-- It is controlled via wezterm.local.lua so each machine can choose its default
+-- (e.g. "local" + default_prog for PowerShell, or "WSL:Ubuntu" for WSL).
 
 -- Launch menu for quick shell selection (ALT+L to open)
 config.launch_menu = {
@@ -507,10 +508,23 @@ end
 -- LOCAL CONFIGURATION OVERRIDE
 -- =============================================================================
 -- Load local configuration if it exists (wezterm.local.lua).
--- Returns a table; each key overrides the corresponding config value.
--- Deep-merge is not supported: table values replace entirely.
+-- This file is machine-specific and ignored by Git (.gitignore).
+-- 
+-- For developers:
+--   1. Copy wezterm.local.template.lua to wezterm.local.lua
+--   2. Uncomment your preferred shell config (PowerShell or WSL)
+--   3. Customize any other machine-specific settings
+--   4. Never commit wezterm.local.lua - it's local-only
+--
+-- The local config overrides top-level settings here (no deep-merge).
+local local_config_path = wezterm.config_dir .. '/wezterm.local.lua'
 local ok, local_config = pcall(function()
-	return require 'wezterm.local'
+	if wezterm.target_triple:find('windows') then
+		local_config_path = wezterm.config_dir .. '\\wezterm.local.lua'
+	end
+	local f = loadfile(local_config_path)
+	if f then return f() end
+	return nil
 end)
 
 if ok and local_config then
