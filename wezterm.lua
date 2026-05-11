@@ -1,7 +1,7 @@
 -- WezTerm Configuration
 -- Reload config: Press Ctrl+Shift+R in WezTerm
 
-local wezterm = require 'wezterm'
+local wezterm = require("wezterm")
 local config = wezterm.config_builder()
 
 -- =============================================================================
@@ -10,58 +10,58 @@ local config = wezterm.config_builder()
 -- Plugins are loaded at top-level (required for periodic_save and apply_to_config
 -- to work correctly at config evaluation time).
 
-local resurrect_ok, resurrect = pcall(function()
-	return wezterm.plugin.require('https://github.com/MLFlexer/resurrect.wezterm')
-end)
-if not resurrect_ok then
-	resurrect = nil
-	wezterm.log_warn('Failed to load resurrect.wezterm: ' .. tostring(resurrect))
-end
-
-local ai_helper_ok, ai_helper = pcall(function()
-	return wezterm.plugin.require('https://github.com/Michal1993r/ai-helper.wezterm')
-end)
-if not ai_helper_ok then
-	ai_helper = nil
-	wezterm.log_warn('Failed to load ai-helper.wezterm: ' .. tostring(ai_helper))
-end
-
-local tabline_ok, tabline = pcall(function()
-	return wezterm.plugin.require('https://github.com/michaelbrusegard/tabline.wez')
-end)
-if not tabline_ok then
-	tabline = nil
-	wezterm.log_warn('Failed to load tabline.wez: ' .. tostring(tabline))
-end
-
-local smart_splits_ok, smart_splits = pcall(function()
-	return wezterm.plugin.require('https://github.com/mrjones2014/smart-splits.nvim')
-end)
-if not smart_splits_ok then
-	smart_splits = nil
-	wezterm.log_warn('Failed to load smart-splits.nvim: ' .. tostring(smart_splits))
-end
+-- local resurrect_ok, resurrect = pcall(function()
+-- 	return wezterm.plugin.require("https://github.com/MLFlexer/resurrect.wezterm")
+-- end)
+-- if not resurrect_ok then
+-- 	resurrect = nil
+-- 	wezterm.log_warn("Failed to load resurrect.wezterm: " .. tostring(resurrect))
+-- end
+--
+-- local ai_helper_ok, ai_helper = pcall(function()
+-- 	return wezterm.plugin.require("https://github.com/Michal1993r/ai-helper.wezterm")
+-- end)
+-- if not ai_helper_ok then
+-- 	ai_helper = nil
+-- 	wezterm.log_warn("Failed to load ai-helper.wezterm: " .. tostring(ai_helper))
+-- end
+--
+-- local tabline_ok, tabline = pcall(function()
+-- 	return wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
+-- end)
+-- if not tabline_ok then
+-- 	tabline = nil
+-- 	wezterm.log_warn("Failed to load tabline.wez: " .. tostring(tabline))
+-- end
+--
+-- local smart_splits_ok, smart_splits = pcall(function()
+-- 	return wezterm.plugin.require("https://github.com/mrjones2014/smart-splits.nvim")
+-- end)
+-- if not smart_splits_ok then
+-- 	smart_splits = nil
+-- 	wezterm.log_warn("Failed to load smart-splits.nvim: " .. tostring(smart_splits))
+-- end
 
 -- =============================================================================
 -- FONTS CONFIGURATION
 -- =============================================================================
 -- Font with fallback chain for symbols and emojis
 config.font = wezterm.font_with_fallback({
-	'JetBrains Mono',
-	'Symbols Nerd Font Mono',
-	'Noto Color Emoji',
+	"JetBrains Mono",
+	"Symbols Nerd Font Mono",
+	"Noto Color Emoji",
 })
 config.font_size = 12.0
-config.harfbuzz_features = { 'calt=1', 'clig=1', 'liga=1' }
+config.harfbuzz_features = { "calt=1", "clig=1", "liga=1" }
 
 -- =============================================================================
 -- COLORS & APPEARANCE CONFIGURATION
 -- =============================================================================
 -- Scheme names are case-sensitive. See: https://wezterm.org/colorschemes/
-config.color_scheme = 'Nord'
+config.color_scheme = "Nord"
 
 -- Window appearance
-config.window_decorations = 'RESIZE' -- TITLE | RESIZE | NONE
+config.window_decorations = "RESIZE" -- TITLE | RESIZE | NONE
 
 -- Window sizing — window is maximized on startup (gui-attached below),
 -- so these only affect the brief moment before maximization.
@@ -76,10 +76,10 @@ config.window_padding = {
 }
 
 -- Cursor styling
-config.default_cursor_style = 'BlinkingBar'
+config.default_cursor_style = "BlinkingBar"
 config.cursor_thickness = 2
 config.underline_position = -2
-config.underline_thickness = '1px'
+config.underline_thickness = "1px"
 
 -- Tab bar: tabline.wez will configure these if loaded; set sensible defaults
 -- in case tabline fails to load. tabline requires use_fancy_tab_bar = false.
@@ -91,26 +91,26 @@ config.tab_max_width = 32
 -- These match the active color_scheme; update if you change color_scheme.
 config.colors = {
 	tab_bar = {
-		background = '#2E3440', -- nord0
+		background = "#2E3440", -- nord0
 		active_tab = {
-			bg_color = '#88C0D0', -- nord8
-			fg_color = '#2E3440', -- nord0
-			intensity = 'Bold',
-			underline = 'None',
+			bg_color = "#88C0D0", -- nord8
+			fg_color = "#2E3440", -- nord0
+			intensity = "Bold",
+			underline = "None",
 			italic = false,
 			strikethrough = false,
 		},
 		inactive_tab = {
-			bg_color = '#3B4252', -- nord1
-			fg_color = '#D8DEE9', -- nord4
+			bg_color = "#3B4252", -- nord1
+			fg_color = "#D8DEE9", -- nord4
 		},
 		inactive_tab_hover = {
-			bg_color = '#434C5E', -- nord2
-			fg_color = '#ECEFF4', -- nord6
+			bg_color = "#434C5E", -- nord2
+			fg_color = "#ECEFF4", -- nord6
 		},
 		new_tab = {
-			bg_color = '#3B4252', -- nord1
-			fg_color = '#D8DEE9', -- nord4
+			bg_color = "#3B4252", -- nord1
+			fg_color = "#D8DEE9", -- nord4
 		},
 	},
 }
@@ -119,14 +119,14 @@ config.colors = {
 config.visual_bell = {
 	fade_in_duration_ms = 75,
 	fade_out_duration_ms = 75,
-	target = 'CursorColor',
+	target = "CursorColor",
 }
 
 -- Pane visibility: dim inactive panes so the active pane stands out.
 -- Note: WezTerm only supports `inactive_pane_hsb` (there is no `active_pane_hsb`).
 -- The active pane always renders at full brightness; inactive panes are adjusted.
 config.inactive_pane_hsb = {
-	hue = 1.0,     -- no hue shift
+	hue = 1.0, -- no hue shift
 	saturation = 0.7, -- slightly desaturated
 	brightness = 0.6, -- noticeably dimmed
 }
@@ -143,82 +143,98 @@ config.inactive_pane_hsb = {
 
 config.keys = {
 	-- ---- TAB MANAGEMENT ----
-	{ key = 't',          mods = 'CTRL|SHIFT', action = wezterm.action.SpawnTab 'CurrentPaneDomain' },
-	{ key = 'w',          mods = 'CTRL|SHIFT', action = wezterm.action.CloseCurrentTab { confirm = false } },
-	{ key = 'Tab',        mods = 'CTRL',       action = wezterm.action.ActivateTabRelative(1) },
-	{ key = 'Tab',        mods = 'CTRL|SHIFT', action = wezterm.action.ActivateTabRelative(-1) },
+	{ key = "t", mods = "CTRL|SHIFT", action = wezterm.action.SpawnTab("CurrentPaneDomain") },
+	{ key = "w", mods = "CTRL|SHIFT", action = wezterm.action.CloseCurrentTab({ confirm = false }) },
+	{ key = "Tab", mods = "CTRL", action = wezterm.action.ActivateTabRelative(1) },
+	{ key = "Tab", mods = "CTRL|SHIFT", action = wezterm.action.ActivateTabRelative(-1) },
 
 	-- ---- PANE CREATION (Ctrl+Alt+Arrow to create pane in direction) ----
-	{ key = 'LeftArrow',  mods = 'CTRL|ALT',   action = wezterm.action.SplitPane { direction = 'Left', size = { Percent = 30 } } },
-	{ key = 'RightArrow', mods = 'CTRL|ALT',   action = wezterm.action.SplitPane { direction = 'Right', size = { Percent = 30 } } },
-	{ key = 'UpArrow',    mods = 'CTRL|ALT',   action = wezterm.action.SplitPane { direction = 'Up', size = { Percent = 30 } } },
-	{ key = 'DownArrow',  mods = 'CTRL|ALT',   action = wezterm.action.SplitPane { direction = 'Down', size = { Percent = 30 } } },
+	{
+		key = "LeftArrow",
+		mods = "CTRL|ALT",
+		action = wezterm.action.SplitPane({ direction = "Left", size = { Percent = 30 } }),
+	},
+	{
+		key = "RightArrow",
+		mods = "CTRL|ALT",
+		action = wezterm.action.SplitPane({ direction = "Right", size = { Percent = 30 } }),
+	},
+	{
+		key = "UpArrow",
+		mods = "CTRL|ALT",
+		action = wezterm.action.SplitPane({ direction = "Up", size = { Percent = 30 } }),
+	},
+	{
+		key = "DownArrow",
+		mods = "CTRL|ALT",
+		action = wezterm.action.SplitPane({ direction = "Down", size = { Percent = 30 } }),
+	},
 
 	-- ---- PANE MANAGEMENT ----
-	{ key = 'w',          mods = 'ALT',        action = wezterm.action.CloseCurrentPane { confirm = false } },
-	{ key = 'n',          mods = 'ALT',        action = wezterm.action.SpawnTab 'CurrentPaneDomain' },
-	{ key = 'm',          mods = 'ALT',        action = wezterm.action.TogglePaneZoomState },
+	{ key = "w", mods = "ALT", action = wezterm.action.CloseCurrentPane({ confirm = false }) },
+	{ key = "n", mods = "ALT", action = wezterm.action.SpawnTab("CurrentPaneDomain") },
+	{ key = "m", mods = "ALT", action = wezterm.action.TogglePaneZoomState },
 
 	-- ---- PANE NAVIGATION (fallback when smart-splits not loaded) ----
 	-- ALT+Arrow alone is intercepted by Windows Snap before WezTerm sees it.
 	-- ALT+SHIFT+Arrow avoids that conflict.
-	{ key = 'LeftArrow',  mods = 'ALT|SHIFT',  action = wezterm.action.ActivatePaneDirection 'Left' },
-	{ key = 'RightArrow', mods = 'ALT|SHIFT',  action = wezterm.action.ActivatePaneDirection 'Right' },
-	{ key = 'UpArrow',    mods = 'ALT|SHIFT',  action = wezterm.action.ActivatePaneDirection 'Up' },
-	{ key = 'DownArrow',  mods = 'ALT|SHIFT',  action = wezterm.action.ActivatePaneDirection 'Down' },
+	{ key = "LeftArrow", mods = "ALT|SHIFT", action = wezterm.action.ActivatePaneDirection("Left") },
+	{ key = "RightArrow", mods = "ALT|SHIFT", action = wezterm.action.ActivatePaneDirection("Right") },
+	{ key = "UpArrow", mods = "ALT|SHIFT", action = wezterm.action.ActivatePaneDirection("Up") },
+	{ key = "DownArrow", mods = "ALT|SHIFT", action = wezterm.action.ActivatePaneDirection("Down") },
 
 	-- ---- PANE RESIZING ----
-	{ key = 'LeftArrow',  mods = 'CTRL|SHIFT', action = wezterm.action.AdjustPaneSize { 'Left', 5 } },
-	{ key = 'RightArrow', mods = 'CTRL|SHIFT', action = wezterm.action.AdjustPaneSize { 'Right', 5 } },
-	{ key = 'UpArrow',    mods = 'CTRL|SHIFT', action = wezterm.action.AdjustPaneSize { 'Up', 5 } },
-	{ key = 'DownArrow',  mods = 'CTRL|SHIFT', action = wezterm.action.AdjustPaneSize { 'Down', 5 } },
+	{ key = "LeftArrow", mods = "CTRL|SHIFT", action = wezterm.action.AdjustPaneSize({ "Left", 5 }) },
+	{ key = "RightArrow", mods = "CTRL|SHIFT", action = wezterm.action.AdjustPaneSize({ "Right", 5 }) },
+	{ key = "UpArrow", mods = "CTRL|SHIFT", action = wezterm.action.AdjustPaneSize({ "Up", 5 }) },
+	{ key = "DownArrow", mods = "CTRL|SHIFT", action = wezterm.action.AdjustPaneSize({ "Down", 5 }) },
 
 	-- ---- WINDOW MANAGEMENT ----
-	{ key = 'n',          mods = 'CTRL|SHIFT', action = wezterm.action.SpawnWindow },
-	{ key = 'F11',        mods = '',           action = wezterm.action.ToggleFullScreen },
+	{ key = "n", mods = "CTRL|SHIFT", action = wezterm.action.SpawnWindow },
+	{ key = "F11", mods = "", action = wezterm.action.ToggleFullScreen },
 
 	-- ---- COPY/PASTE & SELECTION ----
 	-- Ctrl+C: copy if text is selected, otherwise send SIGINT normally
 	{
-		key = 'c',
-		mods = 'CTRL',
+		key = "c",
+		mods = "CTRL",
 		action = wezterm.action_callback(function(window, pane)
 			local sel = window:get_selection_text_for_pane(pane)
-			if sel and sel ~= '' then
-				window:perform_action(wezterm.action.CopyTo('Clipboard'), pane)
+			if sel and sel ~= "" then
+				window:perform_action(wezterm.action.CopyTo("Clipboard"), pane)
 			else
-				window:perform_action(wezterm.action.SendKey { key = 'c', mods = 'CTRL' }, pane)
+				window:perform_action(wezterm.action.SendKey({ key = "c", mods = "CTRL" }), pane)
 			end
 		end),
 	},
-	{ key = 'v', mods = 'CTRL',       action = wezterm.action.PasteFrom 'Clipboard' },
+	{ key = "v", mods = "CTRL", action = wezterm.action.PasteFrom("Clipboard") },
 
 	-- ---- SEARCH & SCROLLBACK ----
-	{ key = 'f', mods = 'CTRL|SHIFT', action = wezterm.action.Search { CaseInSensitiveString = '' } },
-	{ key = 'r', mods = 'CTRL|SHIFT', action = wezterm.action.ReloadConfiguration },
+	{ key = "f", mods = "CTRL|SHIFT", action = wezterm.action.Search({ CaseInSensitiveString = "" }) },
+	{ key = "r", mods = "CTRL|SHIFT", action = wezterm.action.ReloadConfiguration },
 
 	-- ---- QUICK SELECT (Select text patterns in pane) ----
-	{ key = 's', mods = 'CTRL|SHIFT', action = wezterm.action.QuickSelect },
+	{ key = "s", mods = "CTRL|SHIFT", action = wezterm.action.QuickSelect },
 
 	-- ---- LAUNCHER (open launch_menu to select shell) ----
-	{ key = 'l', mods = 'ALT',        action = wezterm.action.ShowLauncher },
+	{ key = "l", mods = "ALT", action = wezterm.action.ShowLauncher },
 
 	-- ---- RESURRECT : SAVE SESSIONS ----
 	{
-		key = 's',
-		mods = 'ALT',
+		key = "s",
+		mods = "ALT",
 		action = wezterm.action_callback(function(win, pane)
 			if resurrect then
 				resurrect.state_manager.save_state(resurrect.workspace_state.get_workspace_state())
 				resurrect.window_state.save_window_action()
 			else
-				wezterm.log_warn('resurrect not loaded')
+				wezterm.log_warn("resurrect not loaded")
 			end
 		end),
 	},
 	{
-		key = 'S',
-		mods = 'ALT',
+		key = "S",
+		mods = "ALT",
 		action = wezterm.action_callback(function(win, pane)
 			if resurrect then
 				resurrect.tab_state.save_tab_action()
@@ -228,28 +244,28 @@ config.keys = {
 
 	-- ---- RESURRECT : RESTORE SESSIONS ----
 	{
-		key = 'r',
-		mods = 'ALT',
+		key = "r",
+		mods = "ALT",
 		action = wezterm.action_callback(function(win, pane)
 			if resurrect then
 				resurrect.fuzzy_loader.fuzzy_load(win, pane, function(id, label)
-					local type = string.match(id, '^([^/]+)')
-					id = string.match(id, '([^/]+)$')
-					id = string.match(id, '(.+)%..+$')
+					local type = string.match(id, "^([^/]+)")
+					id = string.match(id, "([^/]+)$")
+					id = string.match(id, "(.+)%..+$")
 					local state = resurrect.state_manager.load_state(id, type)
-					if type == 'workspace' then
+					if type == "workspace" then
 						resurrect.workspace_state.restore_workspace(state, {
 							relative = true,
 							restore_text = true,
 							on_pane_restore = resurrect.tab_state.default_on_pane_restore,
 						})
-					elseif type == 'window' then
+					elseif type == "window" then
 						resurrect.window_state.restore_window(pane:window(), state, {
 							relative = true,
 							restore_text = true,
 							on_pane_restore = resurrect.tab_state.default_on_pane_restore,
 						})
-					elseif type == 'tab' then
+					elseif type == "tab" then
 						resurrect.tab_state.restore_tab(pane:tab(), state, {
 							relative = true,
 							restore_text = true,
@@ -263,13 +279,17 @@ config.keys = {
 
 	-- ---- RESURRECT : DELETE SESSIONS ----
 	{
-		key = 'd',
-		mods = 'ALT',
+		key = "d",
+		mods = "ALT",
 		action = wezterm.action_callback(function(win, pane)
 			if resurrect then
 				resurrect.fuzzy_loader.fuzzy_load(win, pane, function(id)
 					resurrect.state_manager.delete_state(id)
-				end, { title = 'Delete State', description = 'Select state to delete', fuzzy_description = 'Delete: ' })
+				end, {
+					title = "Delete State",
+					description = "Select state to delete",
+					fuzzy_description = "Delete: ",
+				})
 			end
 		end),
 	},
@@ -288,14 +308,14 @@ config.keys = {
 config.mouse_bindings = {
 	-- Right-click to paste from clipboard
 	{
-		event = { Down = { streak = 1, button = 'Right' } },
-		mods = 'NONE',
-		action = wezterm.action.PasteFrom 'Clipboard',
+		event = { Down = { streak = 1, button = "Right" } },
+		mods = "NONE",
+		action = wezterm.action.PasteFrom("Clipboard"),
 	},
 	-- Ctrl+Click to open hyperlinks
 	{
-		event = { Up = { streak = 1, button = 'Left' } },
-		mods = 'CTRL',
+		event = { Up = { streak = 1, button = "Left" } },
+		mods = "CTRL",
 		action = wezterm.action.OpenLinkAtMouseCursor,
 	},
 }
@@ -304,10 +324,10 @@ config.mouse_bindings = {
 -- QUICK SELECT PATTERNS
 -- =============================================================================
 config.quick_select_patterns = {
-	'[0-9a-f]{7,40}',                               -- git hashes
-	'[\\w./-]+\\.\\w+:\\d+',                        -- file:line patterns
-	'\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}',    -- IPv4 addresses
-	'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}', -- email addresses
+	"[0-9a-f]{7,40}", -- git hashes
+	"[\\w./-]+\\.\\w+:\\d+", -- file:line patterns
+	"\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}", -- IPv4 addresses
+	"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}", -- email addresses
 }
 
 -- =============================================================================
@@ -324,58 +344,54 @@ config.mouse_wheel_scrolls_tabs = false
 -- =============================================================================
 -- TERMINAL BEHAVIOR
 -- =============================================================================
-config.window_close_confirmation = 'NeverPrompt'
-config.audible_bell = 'Disabled'
+config.window_close_confirmation = "NeverPrompt"
+config.audible_bell = "Disabled"
 config.adjust_window_size_when_changing_font_size = true
 config.hyperlink_rules = wezterm.default_hyperlink_rules()
 
 -- Close pane on clean exit (exit code 0); keep open on error for inspection
-config.exit_behavior = 'CloseOnCleanExit'
+config.exit_behavior = "CloseOnCleanExit"
 
 -- =============================================================================
 -- WSL INTEGRATION
 -- =============================================================================
--- default_domain is intentionally NOT set here.
--- It is controlled via wezterm.local.lua so each machine can choose its default
--- (e.g. "local" + default_prog for PowerShell, or "WSL:Ubuntu" for WSL).
+-- default_prog and default_domain are intentionally NOT set here.
+-- They are controlled via wezterm.local.lua so each machine can choose its default
+-- (e.g. PowerShell on a Windows-only machine, or WSL:Ubuntu on a dev machine).
 
 -- Launch menu for quick shell selection (ALT+L to open)
 config.launch_menu = {
 	{
-		label = 'WSL Ubuntu',
-		args = { 'wsl.exe', '--distribution', 'Ubuntu' },
+		label = "WSL Ubuntu",
+		args = { "wsl.exe", "--distribution", "Ubuntu" },
 	},
 	{
-		label = 'PowerShell (Modern)',
-		args = { 'pwsh.exe', '-NoLogo' },
+		label = "PowerShell (Modern)",
+		args = { "pwsh.exe", "-NoLogo" },
 	},
 	{
-		label = 'PowerShell (Legacy)',
-		args = { 'powershell.exe', '-NoLogo' },
-	},
-	{
-		label = 'Command Prompt',
-		args = { 'cmd.exe' },
+		label = "Command Prompt",
+		args = { "cmd.exe" },
 	},
 }
 
 -- =============================================================================
 -- RENDERING & FRONTEND
 -- =============================================================================
-config.front_end = 'OpenGL'
-config.freetype_load_flags = 'DEFAULT'
-config.freetype_render_target = 'HorizontalLcd'
+config.front_end = "OpenGL"
+config.freetype_load_flags = "DEFAULT"
+config.freetype_render_target = "HorizontalLcd"
 config.anti_alias_custom_block_glyphs = true
 config.animation_fps = 1
-config.cursor_blink_ease_in = 'Linear'
-config.cursor_blink_ease_out = 'Linear'
+config.cursor_blink_ease_in = "Linear"
+config.cursor_blink_ease_out = "Linear"
 config.cursor_blink_rate = 800
 
 -- =============================================================================
 -- WINDOWS AESTHETICS
 -- =============================================================================
 -- Mica backdrop effect (Windows 11 frosted glass)
-config.win32_system_backdrop = 'Mica'
+config.win32_system_backdrop = "Mica"
 
 -- 0.85 allows Mica to show through while keeping text readable
 config.window_background_opacity = 0.85
@@ -390,7 +406,7 @@ config.window_background_opacity = 0.85
 -- internally. Some built-in schemes may lack fields that tabline expects
 -- (e.g. .ansi), which causes a runtime error. Passing the scheme object
 -- directly bypasses that lookup and avoids the crash.
-local _scheme = wezterm.color.get_builtin_schemes()['Nord']
+local _scheme = wezterm.color.get_builtin_schemes()["Nord"]
 
 if tabline then
 	tabline.setup({
@@ -412,27 +428,27 @@ if tabline then
 			},
 		},
 		sections = {
-			tabline_a = { 'mode' },
-			tabline_b = { 'workspace' },
-			tabline_c = { ' ' },
+			tabline_a = { "mode" },
+			tabline_b = { "workspace" },
+			tabline_c = { " " },
 			tab_active = {
-				'index',
-				{ 'parent', padding = 0 },
-				'/',
-				{ 'cwd',    padding = { left = 0, right = 1 } },
-				{ 'zoomed', padding = 0 },
+				"index",
+				{ "parent", padding = 0 },
+				"/",
+				{ "cwd", padding = { left = 0, right = 1 } },
+				{ "zoomed", padding = 0 },
 			},
-			tab_inactive = { 'index', { 'process', padding = { left = 0, right = 1 } } },
-			tabline_x = { 'ram', 'cpu' },
-			tabline_y = { 'datetime', 'battery' },
-			tabline_z = { 'domain' },
+			tab_inactive = { "index", { "process", padding = { left = 0, right = 1 } } },
+			tabline_x = { "ram", "cpu" },
+			tabline_y = { "datetime", "battery" },
+			tabline_z = { "domain" },
 		},
-		extensions = resurrect and { 'resurrect' } or {},
+		extensions = resurrect and { "resurrect" } or {},
 	})
 	-- Applies tab_bar_at_bottom=true, use_fancy_tab_bar=false, etc.
 	tabline.apply_to_config(config)
 else
-	wezterm.log_warn('tabline.wez not loaded - using default tab bar')
+	wezterm.log_warn("tabline.wez not loaded - using default tab bar")
 end
 
 -- =============================================================================
@@ -446,16 +462,16 @@ end
 if smart_splits then
 	smart_splits.apply_to_config(config, {
 		direction_keys = {
-			move   = { 'LeftArrow', 'DownArrow', 'UpArrow', 'RightArrow' },
-			resize = { 'LeftArrow', 'DownArrow', 'UpArrow', 'RightArrow' },
+			move = { "LeftArrow", "DownArrow", "UpArrow", "RightArrow" },
+			resize = { "LeftArrow", "DownArrow", "UpArrow", "RightArrow" },
 		},
 		modifiers = {
-			move   = 'ALT|SHIFT',
-			resize = 'CTRL|SHIFT',
+			move = "ALT|SHIFT",
+			resize = "CTRL|SHIFT",
 		},
 	})
 else
-	wezterm.log_warn('smart-splits.nvim not loaded - using standard pane navigation')
+	wezterm.log_warn("smart-splits.nvim not loaded - using standard pane navigation")
 end
 
 -- =============================================================================
@@ -472,7 +488,7 @@ if resurrect then
 		save_tabs = true,
 	})
 else
-	wezterm.log_warn('resurrect.wezterm not loaded - session save/restore unavailable')
+	wezterm.log_warn("resurrect.wezterm not loaded - session save/restore unavailable")
 end
 
 -- =============================================================================
@@ -480,28 +496,27 @@ end
 -- =============================================================================
 -- Requires a GitHub Personal Access Token with 'copilot' scope.
 -- Set GITHUB_COPILOT_TOKEN env variable before launching WezTerm.
-local github_token = os.getenv('GITHUB_COPILOT_TOKEN') or ''
+local github_token = os.getenv("GITHUB_COPILOT_TOKEN") or ""
 
 if ai_helper then
 	ai_helper.apply_to_config(config, {
-		type = 'http',
-		api_url = 'https://api.githubcopilot.com/chat/completions',
+		type = "http",
+		api_url = "https://api.githubcopilot.com/chat/completions",
 		api_key = github_token,
-		model = 'gpt-4o',
+		model = "gpt-4o",
 		headers = {
-			['Editor-Version'] = 'vscode/1.85.0',
-			['Copilot-Integration-Id'] = 'vscode-chat',
+			["Editor-Version"] = "vscode/1.85.0",
+			["Copilot-Integration-Id"] = "vscode-chat",
 		},
-		keybinding = { key = 'i', mods = 'CTRL|SHIFT' },
-		keybinding_with_pane = { key = 'I', mods = 'CTRL|SHIFT|ALT' },
-		system_prompt =
-		'You are an assistant that specializes in CLI and Windows/PowerShell/WSL commands. Be brief and to the point. Print commands in a way that is easy to copy. Concatenate commands with && or || for ease of use.',
+		keybinding = { key = "i", mods = "CTRL|SHIFT" },
+		keybinding_with_pane = { key = "I", mods = "CTRL|SHIFT|ALT" },
+		system_prompt = "You are an assistant that specializes in CLI and Windows/PowerShell/WSL commands. Be brief and to the point. Print commands in a way that is easy to copy. Concatenate commands with && or || for ease of use.",
 		timeout = 30,
 		show_loading = true,
 		share_n_lines = 150,
 	})
 else
-	wezterm.log_warn('ai-helper.wezterm not loaded - Copilot integration unavailable')
+	wezterm.log_warn("ai-helper.wezterm not loaded - Copilot integration unavailable")
 end
 
 -- =============================================================================
@@ -509,7 +524,7 @@ end
 -- =============================================================================
 -- Load local configuration if it exists (wezterm.local.lua).
 -- This file is machine-specific and ignored by Git (.gitignore).
--- 
+--
 -- For developers:
 --   1. Copy wezterm.local.template.lua to wezterm.local.lua
 --   2. Uncomment your preferred shell config (PowerShell or WSL)
@@ -517,13 +532,15 @@ end
 --   4. Never commit wezterm.local.lua - it's local-only
 --
 -- The local config overrides top-level settings here (no deep-merge).
-local local_config_path = wezterm.config_dir .. '/wezterm.local.lua'
+local local_config_path = wezterm.config_dir .. "/wezterm.local.lua"
 local ok, local_config = pcall(function()
-	if wezterm.target_triple:find('windows') then
-		local_config_path = wezterm.config_dir .. '\\wezterm.local.lua'
+	if wezterm.target_triple:find("windows") then
+		local_config_path = wezterm.config_dir .. "\\wezterm.local.lua"
 	end
 	local f = loadfile(local_config_path)
-	if f then return f() end
+	if f then
+		return f()
+	end
 	return nil
 end)
 
@@ -538,7 +555,7 @@ end
 -- =============================================================================
 -- Maximize windows in the active workspace on startup.
 -- Filter by workspace to avoid touching unrelated windows or spawning extras.
-wezterm.on('gui-attached', function(domain)
+wezterm.on("gui-attached", function(domain)
 	local mux = wezterm.mux
 	local workspace = mux.get_active_workspace()
 	for _, window in ipairs(mux.all_windows()) do
